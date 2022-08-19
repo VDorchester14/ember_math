@@ -46,11 +46,11 @@ impl Vector3f{
         }
     }
 
-    pub fn dot(&self, other: &Self) -> f32 {
+    pub fn dot(&self, other: Self) -> f32 {
         (self.x * other.x) + (self.y * other.y) + (self.z * other.z)
     }
     
-    pub fn cross(&self, other: &Self) -> Self {
+    pub fn cross(&self, other: Self) -> Self {
         let x: f32 = (self.y * other.z) - (self.z * other.y);
         let y: f32 = (self.z * other.x) - (self.x * other.z);
         let z: f32 = (self.x * other.y) - (self.y * other.x);
@@ -81,7 +81,7 @@ impl Vector3f{
         Vector4f::new(self.x, self.y, self.z, w)
     }
 
-    pub fn angle_between_rad(&self, other: &Self) -> f32 {
+    pub fn angle_between_rad(&self, other: Self) -> f32 {
         (self.dot(other) / (self.magnitude() * other.magnitude())).acos()
     }
 }
@@ -133,5 +133,12 @@ impl SubAssign for Vector3f {
 impl From<Vector3f> for [f32; 3] {
     fn from(vec: Vector3f) -> [f32; 3] {
         [vec.x, vec.y, vec.z]
+    }
+}
+
+
+impl PartialEq for Vector3f {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y && self.z == other.z
     }
 }

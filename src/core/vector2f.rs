@@ -39,7 +39,7 @@ impl Vector2f{
         }
     }
 
-    pub fn dot(&self, other: &Self) -> f32 {
+    pub fn dot(&self, other: Self) -> f32 {
         (self.x * other.x) + (self.y * other.y)
     }
     
@@ -62,7 +62,7 @@ impl Vector2f{
         Vector2f::new(self.x * s, self.y * s)
     }
 
-    pub fn angle_between_rad(&self, other: &Self) -> f32 {
+    pub fn angle_between_rad(&self, other: Self) -> f32 {
         (self.dot(other) / (self.magnitude() * other.magnitude())).acos()
     }
 }
@@ -110,5 +110,11 @@ impl SubAssign for Vector2f {
 impl From<Vector2f> for [f32; 2] {
     fn from(vec: Vector2f) -> [f32; 2] {
         [vec.x, vec.y]
+    }
+}
+
+impl PartialEq for Vector2f {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
     }
 }

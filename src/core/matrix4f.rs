@@ -197,34 +197,50 @@ impl Matrix4f{
         }
     }
 
-    pub fn look_to_rh(eye: &Vector3f, dir: &Vector3f, up: &Vector3f) -> Matrix4f {
-        let f = dir.normalize();
-        let s = f.cross(&up).normalize();
-        let u = s.cross(&f);
+    pub fn look_at_rh(eye: Vector3f, center: Vector3f, up: Vector3f) -> Matrix4f {
+        let dir = eye - center;
+        let forward = dir.normalize();
+        let right = up.cross(forward).normalize();
+        // let up = forward.cross(right).normalize();
 
         Matrix4f::new(
-            s.x, u.x, -f.x, 0.0,
-            s.y, u.y, -f.y, 0.0,
-            s.z, u.z, -f.z, 0.0,
-            -eye.dot(&s), -eye.dot(&u), eye.dot(&f), 1.0,
+            right.x, right.y, right.z, -center.dot(right),
+            up.x, up.y, up.z, -center.dot(up), 
+            forward.x, forward.y, forward.z, -center.dot(forward),
+            0.0, 0.0, 0.0, 1.0
         )
     }
 
-    pub fn look_at_rh(eye: Vector3f, center: Vector3f, up: Vector3f) -> Matrix4f {
-        let diff = center - eye;
-        Matrix4f::look_to_rh(&eye, &diff, &up)
-    }
+    pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Matrix4f {
+        let c = 1.0 / (fovy / 2.0).tan();
+        let fp = -far;
+        let np = -near;
 
-    pub fn perspective(fov: f32, aspect: f32, near: f32, far: f32) -> Matrix4f {
-        let fovx = fov / aspect;
-        let half_fov_x = fovx / 2.0;
-        let half_fov_y = fov / 2.0;
-        let d = far - near;
+        let c0r0 = c / aspect;
+        let c0r1 = 0.0;
+        let c0r2 = 0.0;
+        let c0r3 = 0.0;
+
+        let c1r0 = 0.0;
+        let c1r1 = c;
+        let c1r2 = 0.0;
+        let c1r3 = 0.0;
+
+        let c2r0 = 0.0;
+        let c2r1 = 0.0;
+        let c2r2 = -(fp + np) / (fp - np);
+        let c2r3 = -1.0;
+
+        let c3r0 = 0.0;
+        let c3r1 = 0.0;
+        let c3r2 = (2.0 * fp * np) / (fp - np);
+        let c3r3 = 0.0;
+
         Matrix4f::new(
-            half_fov_x.atan(), 0.0, 0.0, 0.0,
-            0.0, half_fov_y.atan(), 0.0, 0.0,
-            0.0, 0.0, -((far + near)/(d)), -((2.0*near*far)/(d)),
-            0.0, 0.0, -1.0, 0.0
+            c0r0, c1r0, c2r0, c3r0,
+            c0r1, c1r1, c2r1, c3r1,
+            c0r2, c1r2, c2r2, c3r2,
+            c0r3, c1r3, c2r3, c3r3,
         )
     }
 }
@@ -351,5 +367,16 @@ impl From<Matrix4f> for [[f32; 4]; 4] {
             [m.data[8], m.data[9], m.data[10], m.data[11]],
             [m.data[12], m.data[13], m.data[14], m.data[15]]
         ]
+    }
+}
+
+impl PartialEq for Matrix4f {
+    fn eq(&self, other: &Self) -> bool {
+        for i in 0..16 {
+            if self.data[i] != other.data[i] {
+                return false;
+            }
+        }
+        return true;
     }
 }

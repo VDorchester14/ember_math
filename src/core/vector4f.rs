@@ -47,7 +47,7 @@ impl Vector4f{
         }
     }
 
-    pub fn dot(&self, other: &Self) -> f32 {
+    pub fn dot(&self, other: Self) -> f32 {
         (self.x * other.x) + (self.y * other.y) + (self.z * other.z) + (self.w * other.w)
     }
 
@@ -125,5 +125,12 @@ impl SubAssign for Vector4f {
 impl From<Vector4f> for [f32; 4] {
     fn from(vec: Vector4f) -> [f32; 4] {
         [vec.x, vec.y, vec.z, vec.w]
+    }
+}
+
+
+impl PartialEq for Vector4f {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y && self.z == other.z && self.w == other.w
     }
 }

@@ -44,6 +44,16 @@ impl Matrix3f{
         }
     }
 
+    pub fn zero() -> Self {
+        Matrix3f{
+            data: [
+                0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0
+            ]
+        }
+    }
+
     pub fn identity() -> Self{
         Matrix3f{
             data: [
@@ -103,9 +113,9 @@ impl Matrix3f{
         let m22 = self.data[0]*self.data[4] - self.data[1]*self.data[3];
         
         Matrix3f::new(
-            m00, m01, m02,
-            m10, m11, m12,
-            m20, m21, m22
+            m00, -m01, m02,
+            -m10, m11, -m12,
+            m20, -m21, m22
         )
     }
 
@@ -219,5 +229,16 @@ impl From<Matrix3f> for [[f32; 3]; 3] {
             [m.data[3], m.data[4], m.data[5]],
             [m.data[6], m.data[7], m.data[8]],
         ]
+    }
+}
+
+impl PartialEq for Matrix3f {
+    fn eq(&self, other: &Self) -> bool {
+        for i in 0..9 {
+            if self.data[i] != other.data[i] {
+                return false;
+            }
+        }
+        return true;
     }
 }
