@@ -15,11 +15,22 @@ use serde::{
     Serialize,
     Deserialize,
 };
+use bevy_reflect::{
+    Reflect,
+    FromReflect
+};
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+
+#[derive(Debug, Clone, Serialize, Deserialize, Reflect, FromReflect)]
 #[repr(C)]
 pub struct Matrix4f{
-    pub data: [f32; 16] // row major
+    pub data: Vec<f32>,
+}
+
+impl Default for Matrix4f {
+    fn default() -> Self {
+        Matrix4f::identity()
+    }
 }
 
 impl Matrix4f{
@@ -30,7 +41,7 @@ impl Matrix4f{
         m30: f32, m31: f32, m32: f32, m33: f32
     ) -> Self {
         Matrix4f{
-            data: [
+            data: vec![
                 m00, m01, m02, m03,
                 m10, m11, m12, m13,
                 m20, m21, m22, m23,
@@ -41,7 +52,7 @@ impl Matrix4f{
 
     pub fn one() -> Self{
         Matrix4f{
-            data: [
+            data: vec![
                 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0,
                 1.0, 1.0, 1.0, 1.0,
@@ -52,7 +63,7 @@ impl Matrix4f{
 
     pub fn identity() -> Self{
         Matrix4f{
-            data: [
+            data: vec![
                 1.0, 0.0, 0.0, 0.0,
                 0.0, 1.0, 0.0, 0.0,
                 0.0, 0.0, 1.0, 0.0,
@@ -63,7 +74,7 @@ impl Matrix4f{
 
     pub fn scale(&self, s: f32) -> Self{
         Matrix4f{
-            data: [
+            data: vec![
                 self.data[0] * s, self.data[1] * s, self.data[2] * s, self.data[3] * s,
                 self.data[4] * s, self.data[5] * s, self.data[6] * s, self.data[7] * s,
                 self.data[8] * s, self.data[9] * s, self.data[10] * s, self.data[11] * s,
@@ -74,7 +85,7 @@ impl Matrix4f{
 
     pub fn transpose(&self) -> Self{
         Matrix4f{
-            data:[
+            data: vec![
                 self.data[0], self.data[4], self.data[8], self.data[12],
                 self.data[1], self.data[5], self.data[9], self.data[13],
                 self.data[2], self.data[6], self.data[10], self.data[14],
@@ -94,7 +105,7 @@ impl Matrix4f{
 
     pub fn from_translation(t: Vector3f) -> Matrix4f {
         Matrix4f{
-            data:[
+            data: vec![
                 1.0, 0.0, 0.0, t.x,
                 0.0, 1.0, 0.0, t.y,
                 0.0, 0.0, 1.0, t.z,
@@ -105,7 +116,7 @@ impl Matrix4f{
 
     pub fn from_scale(s: f32) -> Matrix4f {
         Matrix4f{
-            data: [
+            data: vec![
                 s, 0.0, 0.0, 0.0,
                 0.0, s, 0.0, 0.0,
                 0.0, 0.0, s, 0.0,
@@ -116,7 +127,7 @@ impl Matrix4f{
 
     pub fn from_scale_vec(s: Vector3f) -> Matrix4f {
         Matrix4f{
-            data: [
+            data: vec![
                 s.x, 0.0, 0.0, 0.0,
                 0.0, s.y, 0.0, 0.0,
                 0.0, 0.0, s.z, 0.0,
@@ -132,7 +143,7 @@ impl Matrix4f{
 
     pub fn from_angle_x(r: f32) -> Matrix4f {
         Matrix4f{
-            data: [
+            data: vec![
                 1.0, 0.0, 0.0, 0.0,
                 0.0, r.cos(), -r.sin(), 0.0,
                 0.0, r.sin(), r.cos(), 0.0,
@@ -148,7 +159,7 @@ impl Matrix4f{
 
     pub fn from_angle_y(r: f32) -> Matrix4f {
         Matrix4f{
-            data: [
+            data: vec![
                 r.cos(), 0.0, r.sin(), 0.0,
                 0.0, 1.0, 0.0, 0.0,
                 -r.sin(), 0.0, r.cos(), 0.0,
@@ -164,7 +175,7 @@ impl Matrix4f{
 
     pub fn from_angle_z(r: f32) -> Matrix4f {
         Matrix4f{
-            data: [
+            data: vec![
                 r.cos(), -r.sin(), 0.0, 0.0,
                 r.sin(), r.cos(), 0.0, 0.0,
                 0.0, 0.0, 1.0, 0.0,
@@ -173,7 +184,11 @@ impl Matrix4f{
         }
     }
 
-    pub fn from_axis_angle(x: f32, y: f32, z: f32, r: f32) -> Matrix4f {
+    pub fn from_axis_angle(axis: Vector3f, r: f32) -> Matrix4f {
+        Matrix4f::from_axis_angle_comp(axis.x, axis.y, axis.z, r)
+    }
+
+    pub fn from_axis_angle_comp(x: f32, y: f32, z: f32, r: f32) -> Matrix4f {
         let cosr = r.cos();
         let sinr = r.sin();
         let a = 1.0 - cosr;
@@ -188,7 +203,7 @@ impl Matrix4f{
         let zz = z * z;
 
         Matrix4f{
-            data: [
+            data: vec![
                 cosr + xx*a, xy*a - z*sinr, xz*a + ysin, 0.0,
                 xy*a + zsin, cosr + yy*a, yz*a - xsin, 0.0, 
                 xz*a - ysin, yz*a + xsin, cosr + zz*a, 0.0,
@@ -198,23 +213,23 @@ impl Matrix4f{
     }
 
     pub fn look_at_rh(eye: Vector3f, center: Vector3f, up: Vector3f) -> Matrix4f {
-        let dir = eye - center;
-        let forward = dir.normalize();
-        let right = up.cross(forward).normalize();
-        // let up = forward.cross(right).normalize();
+        let dir = center - eye;
+        let zaxis = dir.normalize();
+        let xaxis = zaxis.cross(up).normalize();
+        let yaxis = xaxis.cross(zaxis).normalize();
 
         Matrix4f::new(
-            right.x, right.y, right.z, -center.dot(right),
-            up.x, up.y, up.z, -center.dot(up), 
-            forward.x, forward.y, forward.z, -center.dot(forward),
+            xaxis.x, xaxis.y, xaxis.z, -eye.dot(xaxis),
+            yaxis.x, yaxis.y, yaxis.z, -eye.dot(yaxis), 
+            -zaxis.x, -zaxis.y, -zaxis.z, eye.dot(zaxis),
             0.0, 0.0, 0.0, 1.0
-        )
+        ).transpose()
     }
 
     pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Matrix4f {
         let c = 1.0 / (fovy / 2.0).tan();
-        let fp = -far;
-        let np = -near;
+        let fp = far;
+        let np = near;
 
         let c0r0 = c / aspect;
         let c0r1 = 0.0;
@@ -228,12 +243,14 @@ impl Matrix4f{
 
         let c2r0 = 0.0;
         let c2r1 = 0.0;
-        let c2r2 = -(fp + np) / (fp - np);
+        // let c2r2 = -(fp + np) / (fp - np);
+        let c2r2 = (fp + np) / (np - fp);  // from cgmath
         let c2r3 = -1.0;
 
         let c3r0 = 0.0;
         let c3r1 = 0.0;
-        let c3r2 = (2.0 * fp * np) / (fp - np);
+        // let c3r2 = -(2.0 * fp * np) / (fp - np);
+        let c3r2 = (2.0 * fp * np) / (np - fp);  // from cgmath
         let c3r3 = 0.0;
 
         Matrix4f::new(
@@ -241,7 +258,7 @@ impl Matrix4f{
             c0r1, c1r1, c2r1, c3r1,
             c0r2, c1r2, c2r2, c3r2,
             c0r3, c1r3, c2r3, c3r3,
-        )
+        ).transpose()
     }
 }
 
@@ -250,7 +267,7 @@ impl Add for Matrix4f {
 
     fn add(self, other: Self) -> Self {
         Self {
-            data: [
+            data: vec![
                 self.data[0] + other.data[0], self.data[1] + other.data[1], self.data[2] + other.data[2], self.data[3] + other.data[3],
                 self.data[4] + other.data[4], self.data[5] + other.data[5], self.data[6] + other.data[6], self.data[7] + other.data[7],
                 self.data[8] + other.data[8], self.data[9] + other.data[9], self.data[10] + other.data[10], self.data[11] + other.data[11],
@@ -263,7 +280,7 @@ impl Add for Matrix4f {
 impl AddAssign for Matrix4f {
     fn add_assign(&mut self, other: Self) {
         *self = Self {
-            data: [
+            data: vec![
                 self.data[0] + other.data[0], self.data[1] + other.data[1], self.data[2] + other.data[2], self.data[3] + other.data[3],
                 self.data[4] + other.data[4], self.data[5] + other.data[5], self.data[6] + other.data[6], self.data[7] + other.data[7],
                 self.data[8] + other.data[8], self.data[9] + other.data[9], self.data[10] + other.data[10], self.data[11] + other.data[11],
@@ -278,7 +295,7 @@ impl Sub for Matrix4f {
 
     fn sub(self, other: Self) -> Self {
         Self {
-            data: [
+            data: vec![
                 self.data[0] - other.data[0], self.data[1] - other.data[1], self.data[2] - other.data[2], self.data[3] - other.data[3],
                 self.data[4] - other.data[4], self.data[5] - other.data[5], self.data[6] - other.data[6], self.data[7] - other.data[7],
                 self.data[8] - other.data[8], self.data[9] - other.data[9], self.data[10] - other.data[10], self.data[11] - other.data[11],
@@ -291,7 +308,7 @@ impl Sub for Matrix4f {
 impl SubAssign for Matrix4f {
     fn sub_assign(&mut self, other: Self) {
         *self = Self {
-            data: [
+            data: vec![
                 self.data[0] - other.data[0], self.data[1] - other.data[1], self.data[2] - other.data[2], self.data[3] - other.data[3],
                 self.data[4] - other.data[4], self.data[5] - other.data[5], self.data[6] - other.data[6], self.data[7] - other.data[7],
                 self.data[8] - other.data[8], self.data[9] - other.data[9], self.data[10] - other.data[10], self.data[11] - other.data[11],
@@ -306,7 +323,7 @@ impl Mul for Matrix4f {
 
     fn mul(self, other: Self) -> Self {
         Self {
-            data:[
+            data: vec![
                 (self.data[0]*other.data[0]) + (self.data[1]*other.data[4]) + (self.data[2]*other.data[8]) + (self.data[3]*self.data[12]),
                 (self.data[0]*other.data[1]) + (self.data[1]*other.data[5]) + (self.data[2]*other.data[9]) + (self.data[3]*self.data[13]),
                 (self.data[0]*other.data[2]) + (self.data[1]*other.data[6]) + (self.data[2]*other.data[10]) + (self.data[3]*self.data[14]),
@@ -334,7 +351,7 @@ impl Mul for Matrix4f {
 impl MulAssign for Matrix4f {
     fn mul_assign(&mut self, other: Self) {
         *self = Self {
-            data:[
+            data: vec![
                 (self.data[0]*other.data[0]) + (self.data[1]*other.data[4]) + (self.data[2]*other.data[8]) + (self.data[3]*self.data[12]),
                 (self.data[0]*other.data[1]) + (self.data[1]*other.data[5]) + (self.data[2]*other.data[9]) + (self.data[3]*self.data[13]),
                 (self.data[0]*other.data[2]) + (self.data[1]*other.data[6]) + (self.data[2]*other.data[10]) + (self.data[3]*self.data[14]),

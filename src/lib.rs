@@ -7,7 +7,7 @@ pub use crate::core::{
     matrix3f::Matrix3f,
     matrix4f::Matrix4f,
     angles::{
-        Deg,
-        Rad,
+        deg,
+        rad,
     },
 };

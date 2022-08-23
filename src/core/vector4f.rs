@@ -4,19 +4,31 @@ use std::ops::{
     Sub,
     SubAssign,
 };
+use crate::core::vector3f::Vector3f;
 
 use serde::{
     Serialize,
     Deserialize,
 };
+use bevy_reflect::{
+    Reflect,
+    FromReflect
+};
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Reflect, FromReflect)]
 #[repr(C)]
 pub struct Vector4f{
     pub x: f32,
     pub y: f32,
     pub z: f32,
     pub w: f32,
+}
+
+impl Default for Vector4f {
+    fn default() -> Self {
+        Vector4f::zero()
+    }
 }
 
 impl Vector4f{
@@ -70,6 +82,10 @@ impl Vector4f{
 
     pub fn scale(&self, s: f32) -> Self {
         Vector4f::new(self.x * s, self.y * s, self.z * s, self.w * s)
+    }
+
+    pub fn truncate(&self) -> Vector3f {
+        Vector3f::new(self.x, self.y, self.z)
     }
 
 }

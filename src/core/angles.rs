@@ -1,11 +1,11 @@
 use std::f32::consts::PI;
 
-pub fn Deg(rad: f32) -> f32 {
-    let RTD = 180.0 / PI;
-    rad * RTD
+pub fn deg(rad: f32) -> f32 {
+    let rtd = 180.0 / PI;
+    rad * rtd
 }
 
-pub fn Rad(deg: f32) -> f32 {
-    let DTR = PI / 180.0;
-    deg * DTR
+pub fn rad(deg: f32) -> f32 {
+    let dtr = PI / 180.0;
+    deg * dtr
 }

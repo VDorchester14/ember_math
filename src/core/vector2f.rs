@@ -9,12 +9,23 @@ use serde::{
     Serialize,
     Deserialize,
 };
+use bevy_reflect::{
+    Reflect,
+    FromReflect
+};
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Reflect, FromReflect)]
 #[repr(C)]
 pub struct Vector2f{
     pub x: f32,
     pub y: f32,
+}
+
+impl Default for Vector2f {
+    fn default() -> Self {
+        Vector2f::zero()
+    }
 }
 
 impl Vector2f{

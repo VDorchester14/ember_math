@@ -12,11 +12,22 @@ use serde::{
     Serialize,
     Deserialize,
 };
+use bevy_reflect::{
+    Reflect,
+    FromReflect
+};
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+
+#[derive(Debug, Clone, Serialize, Deserialize, Reflect, FromReflect)]
 #[repr(C)]
 pub struct Matrix3f{
-    pub data: [f32; 9] // row major
+    pub data: Vec<f32>,
+}
+
+impl Default for Matrix3f {
+    fn default() -> Self {
+        Matrix3f::identity()
+    }
 }
 
 impl Matrix3f{
@@ -26,7 +37,7 @@ impl Matrix3f{
         m20: f32, m21: f32, m22: f32
     ) -> Self {
         Matrix3f{
-            data: [
+            data: vec![
                 m00, m01, m02,
                 m10, m11, m12,
                 m20, m21, m22
@@ -36,7 +47,7 @@ impl Matrix3f{
 
     pub fn one() -> Self{
         Matrix3f{
-            data: [
+            data: vec![
                 1.0, 1.0, 1.0,
                 1.0, 1.0, 1.0,
                 1.0, 1.0, 1.0
@@ -46,7 +57,7 @@ impl Matrix3f{
 
     pub fn zero() -> Self {
         Matrix3f{
-            data: [
+            data: vec![
                 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0
@@ -56,7 +67,7 @@ impl Matrix3f{
 
     pub fn identity() -> Self{
         Matrix3f{
-            data: [
+            data: vec![
                 1.0, 0.0, 0.0,
                 0.0, 1.0, 0.0,
                 0.0, 0.0, 1.0
@@ -66,7 +77,7 @@ impl Matrix3f{
 
     pub fn scale(&self, s: f32) -> Self{
         Matrix3f{
-            data: [
+            data: vec![
                 self.data[0] * s, self.data[1] * s, self.data[2] * s,
                 self.data[3] * s, self.data[4] * s, self.data[5] * s,
                 self.data[6] * s, self.data[7] * s, self.data[8] * s
@@ -76,7 +87,7 @@ impl Matrix3f{
 
     pub fn transpose(&self) -> Self{
         Matrix3f{
-            data:[
+            data: vec![
                 self.data[0], self.data[3], self.data[6],
                 self.data[1], self.data[4], self.data[7],
                 self.data[2], self.data[5], self.data[8]
@@ -130,6 +141,28 @@ impl Matrix3f{
     pub fn invertible(&self) -> bool {
         self.determinant() > 1e-6
     }
+
+    pub fn from_axis_angle(axis_in: Vector3f, angle: f32) -> Matrix3f {
+        let axis = axis_in.normalize();
+        let cosr = angle.cos();
+        let sinr = angle.sin();
+        let omc = 1.0 - cosr;
+        let r0c0 = cosr + (axis.x * axis.x * omc);
+        let r0c1 = (axis.x * axis.y * omc) - (axis.z * sinr);
+        let r0c2 = (axis.x * axis.z * omc) + (axis.y * sinr);
+        let r1c0 = (axis.y * axis.x * omc) + (axis.z * sinr);
+        let r1c1 = cosr + (axis.y * axis.y * omc);
+        let r1c2 = (axis.y * axis.z * omc) - (axis.x * sinr);
+        let r2c0 = (axis.z * axis.x * omc) - (axis.y * sinr);
+        let r2c1 = (axis.z * axis.y * omc) + (axis.x * sinr);
+        let r2c2 = cosr + (axis.z * axis.z * omc);
+        Matrix3f::new(
+            r0c0, r0c1, r0c2,
+            r1c0, r1c1, r1c2,
+            r2c0, r2c1, r2c2
+        )
+    }
+
 }
 
 impl Add for Matrix3f {
@@ -137,7 +170,7 @@ impl Add for Matrix3f {
 
     fn add(self, other: Self) -> Self {
         Self {
-            data: [
+            data: vec![
                 self.data[0] + other.data[0], self.data[1] + other.data[1], self.data[2] + other.data[2],
                 self.data[3] + other.data[3], self.data[4] + other.data[4], self.data[5] + other.data[5],
                 self.data[6] + other.data[6], self.data[7] + other.data[7], self.data[8] + other.data[8]
@@ -149,7 +182,7 @@ impl Add for Matrix3f {
 impl AddAssign for Matrix3f {
     fn add_assign(&mut self, other: Self) {
         *self = Self {
-            data: [
+            data: vec![
                 self.data[0] + other.data[0], self.data[1] + other.data[1], self.data[2] + other.data[2],
                 self.data[3] + other.data[3], self.data[4] + other.data[4], self.data[5] + other.data[5],
                 self.data[6] + other.data[6], self.data[7] + other.data[7], self.data[8] + other.data[8]
@@ -163,7 +196,7 @@ impl Sub for Matrix3f {
 
     fn sub(self, other: Self) -> Self {
         Self {
-            data: [
+            data: vec![
                 self.data[0] - other.data[0], self.data[1] - other.data[1], self.data[2] - other.data[2],
                 self.data[3] - other.data[3], self.data[4] - other.data[4], self.data[5] - other.data[5],
                 self.data[6] - other.data[6], self.data[7] - other.data[7], self.data[8] - other.data[8]
@@ -175,7 +208,7 @@ impl Sub for Matrix3f {
 impl SubAssign for Matrix3f {
     fn sub_assign(&mut self, other: Self) {
         *self = Self {
-            data: [
+            data: vec![
                 self.data[0] - other.data[0], self.data[1] - other.data[1], self.data[2] - other.data[2],
                 self.data[3] - other.data[3], self.data[4] - other.data[4], self.data[5] - other.data[5],
                 self.data[6] - other.data[6], self.data[7] - other.data[7], self.data[8] - other.data[8]
@@ -189,7 +222,7 @@ impl Mul for Matrix3f {
 
     fn mul(self, other: Self) -> Self {
         Self {
-            data:[
+            data: vec![
                 (self.data[0]*other.data[0]) + (self.data[1]*other.data[3]) + (self.data[2]*other.data[6]),
                 (self.data[0]*other.data[1]) + (self.data[1]*other.data[4]) + (self.data[2]*other.data[7]),
                 (self.data[0]*other.data[2]) + (self.data[1]*other.data[5]) + (self.data[2]*other.data[8]),
@@ -207,7 +240,7 @@ impl Mul for Matrix3f {
 impl MulAssign for Matrix3f {
     fn mul_assign(&mut self, other: Self) {
         *self = Self {
-            data:[
+            data: vec![
                 (self.data[0]*other.data[0]) + (self.data[1]*other.data[3]) + (self.data[2]*other.data[6]),
                 (self.data[0]*other.data[1]) + (self.data[1]*other.data[4]) + (self.data[2]*other.data[7]),
                 (self.data[0]*other.data[2]) + (self.data[1]*other.data[5]) + (self.data[2]*other.data[8]),

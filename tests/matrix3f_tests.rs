@@ -229,4 +229,24 @@ mod tests {
         assert_eq!(m1, m2);
     }
 
+    #[test]
+    pub fn test_axis_angle() {
+        let m = Matrix3f::from_axis_angle(Vector3f::one().normalize(), 1.0);
+
+        for i in 0..8 {
+            println!("{}", m.data[i]);
+        }
+
+        assert!(almost_eq(m.data[0], 0.693535, 1e-4));
+        assert!(almost_eq(m.data[1], -0.332591, 1e-4));
+        assert!(almost_eq(m.data[2], 0.639056, 1e-4));
+
+        assert!(almost_eq(m.data[3], 0.639056, 1e-4));
+        assert!(almost_eq(m.data[4], 0.693535, 1e-4));
+        assert!(almost_eq(m.data[5], -0.332591, 1e-4));
+
+        assert!(almost_eq(m.data[6], -0.332591, 1e-4));
+        assert!(almost_eq(m.data[7], 0.639056, 1e-4));
+        assert!(almost_eq(m.data[8], 0.693535, 1e-4));
+    }
 }

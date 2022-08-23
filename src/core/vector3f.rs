@@ -3,22 +3,31 @@ use std::ops::{
     AddAssign,
     Sub,
     SubAssign,
-    Mul
 };
 
 use serde::{
     Serialize,
     Deserialize,
 };
+use bevy_reflect::{
+    Reflect,
+    FromReflect
+};
 
 use crate::core::vector4f::Vector4f;
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Reflect, FromReflect)]
 #[repr(C)]
 pub struct Vector3f{
     pub x: f32,
     pub y: f32,
     pub z: f32,
+}
+
+impl Default for Vector3f{
+    fn default() -> Self {
+        Vector3f::zero()
+    }
 }
 
 impl Vector3f{
