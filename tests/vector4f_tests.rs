@@ -73,7 +73,7 @@ mod tests {
     pub fn test_normalize(){
         let a = Vector4f::new(100.0, 0.0, 0.0, 0.0);
         let b = Vector4f::new(0.0, 100.0, 0.0, 0.0);
-        let c = Vector4f::new(1.0, 1.0, 1.0, 1.0);
+        let _c = Vector4f::new(1.0, 1.0, 1.0, 1.0);
 
         let an = Vector4f::new(1.0, 0.0, 0.0, 0.0);
         let bn = Vector4f::new(0.0, 1.0, 0.0, 0.0);

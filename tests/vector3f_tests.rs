@@ -81,7 +81,7 @@ mod tests {
     pub fn test_normalize(){
         let a = Vector3f::new(100.0, 0.0, 0.0);
         let b = Vector3f::new(0.0, 100.0, 0.0);
-        let c = Vector3f::new(1.0, 1.0, 1.0);
+        let _c = Vector3f::new(1.0, 1.0, 1.0);
 
         let an = Vector3f::new(1.0, 0.0, 0.0);
         let bn = Vector3f::new(0.0, 1.0, 0.0);
