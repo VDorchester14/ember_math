@@ -19,9 +19,10 @@ use bevy_reflect::{
     Reflect,
     FromReflect
 };
+use bevy_ecs::prelude::Resource;
 
 
-#[derive(Debug, Clone, Serialize, Deserialize, Reflect, FromReflect)]
+#[derive(Debug, Clone, Serialize, Deserialize, Reflect, FromReflect, Resource)]
 #[repr(C)]
 pub struct Matrix4f{
     pub data: Vec<f32>,

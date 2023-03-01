@@ -13,9 +13,10 @@ use bevy_reflect::{
     Reflect,
     FromReflect
 };
+use bevy_ecs::prelude::Resource;
 
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, Reflect, FromReflect)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Reflect, FromReflect, Resource)]
 #[repr(C)]
 pub struct Vector2f{
     pub x: f32,

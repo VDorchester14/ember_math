@@ -13,10 +13,11 @@ use bevy_reflect::{
     Reflect,
     FromReflect
 };
+use bevy_ecs::prelude::Resource;
 
 use crate::core::vector4f::Vector4f;
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, Reflect, FromReflect)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Reflect, FromReflect, Resource)]
 #[repr(C)]
 pub struct Vector3f{
     pub x: f32,
